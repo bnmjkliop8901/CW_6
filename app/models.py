@@ -3,10 +3,6 @@ from django.contrib.auth.models import User
 # Create your models here.
 
 
-class People(User):
-    pass
-
-
 
 class Task(models.Model):
 
@@ -20,7 +16,7 @@ class Task(models.Model):
     deadline = models.DateField()
     description = models.CharField(max_length=255)
     status = models.CharField(max_length=10 , choices=STATUS_CHOICES , default='pending')
-    task_poeple = models.ForeignKey(User , on_delete=models.CASCADE)
+    task_user = models.ForeignKey(User , on_delete=models.CASCADE)
 
 
 # class Product(models.Model):

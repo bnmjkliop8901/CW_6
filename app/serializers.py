@@ -1,21 +1,25 @@
-from app.models import Task, People
+from app.models import Task,User
 from rest_framework import serializers
 
 class TaskSerializers(serializers.ModelSerializer):
     class Meta:
         model = Task
         fields = '__all__'
+        
 
-class PeopleSerializers(serializers.ModelSerializer):
+class UserSerializers(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
+
     class Meta:
-        model = People
-        fields = '__all__'
+        model = User
+        fields = ['username', 'email', 'password', 'groups']
+        extra_kwargs = {'email': {'required': True, 'allow_blank': False}}
 
-def create(self, validated_data):
-    groups_data = validated_data.pop('groups', [])  # Extract groups before creating People
-    user = People.objects.create(**validated_data)  # ✅ Create user first
-    
-    if groups_data:
-        user.groups.set(groups_data)  # ✅ Correct way to assign many-to-many relationships
-    
-    return user
+    def create(self, validated_data):
+        groups_data = validated_data.pop('groups', [])
+        user = User.objects.create_user(**validated_data)  
+
+        if groups_data:
+            user.groups.set(groups_data)
+
+        return user
