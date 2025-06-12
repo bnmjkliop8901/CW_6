@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import ListCreateAPIView , RetrieveUpdateDestroyAPIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from app.serializers import TaskSerializers , UserSerializers
@@ -13,20 +14,22 @@ from app.models import Task , User
 class TaskCreateSerializers(ListCreateAPIView):
     queryset = Task.objects.all()
     serializer_class = TaskSerializers
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return self.objects.filter(user = self.request.user)
+
+    def perform_create(self , serializer):
+        return serializer.save(user = self.request.user)
 
 
 class TaskDetailSerializers(RetrieveUpdateDestroyAPIView):
-
-    # queryset = Task.objects.all()
+    queryset = Task.objects.all()
     serializer_class = TaskSerializers
-    
-    # def get(self , request):
-    #     people = self.get_object()
-    #     print(people)
-    def get_queryset(self ):
-        print(self.request.user)
-        # return Task.objects.filter(task_people = self.request.user['id'])
-        # return Task.objects.filter(task_poeple = 4)
+
+
+    def get_queryset(self):
+        return Task.objects.filter(user=self.request.user) 
 
 class UserCreateSerializers(ListCreateAPIView):
     queryset = User.objects.all()
